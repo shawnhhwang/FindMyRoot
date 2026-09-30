@@ -38,6 +38,8 @@
 
 ### 安裝與啟動
 
+#### 方式一：傳統 Node.js 啟動
+
 1. **安裝所有相依套件**：
    ```bash
    npm run install:all
@@ -57,6 +59,25 @@
 > **開發模式（前後端獨立熱重載）**：
 > - 啟動後端：`npm run dev:backend`（監聽 3001 端口）
 > - 啟動前端：`npm run dev:frontend`（監聽 5173 端口，自動代理 API 至 3001）
+
+#### 方式二：Docker 容器化部署 (推薦)
+
+本專案支援多階段 Docker 映像檔構建，自動編譯前端並掛載 SQLite 資料持久化目錄：
+
+1. **使用 Docker Compose 單鍵啟動**：
+   ```bash
+   docker compose up -d
+   ```
+   
+2. **或手動使用 Docker 指令建置與運行**：
+   ```bash
+   # 構建映像檔
+   docker build -t findroot .
+
+   # 啟動容器 (掛載本地 ./data 目錄以持久化保存 SQLite 資料庫)
+   docker run -d -p 3001:3001 -v $(pwd)/data:/app/backend/data --name findroot-app findroot
+   ```
+   啟動完成後，造訪 **`http://localhost:3001`** 即可使用。
 
 ---
 

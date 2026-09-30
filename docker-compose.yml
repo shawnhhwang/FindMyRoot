@@ -1,0 +1,15 @@
+services:
+  findroot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: findroot-app
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    volumes:
+      # 持久化保存 SQLite 資料庫檔案
+      - ./data:/app/backend/data

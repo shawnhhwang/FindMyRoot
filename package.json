@@ -7,9 +7,12 @@
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
     "build:frontend": "npm --prefix frontend run build",
-    "start": "npm --prefix backend start"
+    "start": "npm --prefix backend start",
+    "docker:build": "docker build -t findroot .",
+    "docker:run": "docker run -d -p 3001:3001 -v $(pwd)/data:/app/backend/data --name findroot-app findroot",
+    "docker:compose": "docker compose up -d"
   },
-  "keywords": ["genealogy", "ancestor-tablet", "lunar-calendar", "family-tree", "vue", "sqlite"],
+  "keywords": ["genealogy", "ancestor-tablet", "lunar-calendar", "family-tree", "vue", "sqlite", "docker"],
   "author": "FindRoot Team",
   "license": "ISC"
 }
