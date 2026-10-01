@@ -7,8 +7,87 @@
           <span>宗族設定與資料備份</span>
         </h2>
         <p class="text-xs text-gray-500 mt-1">
-          管理堂號、字輩歌詩，並提供整個族譜資料庫的單鍵 JSON 備份與離線還原。
+          管理堂號、字輩歌詩、會員帳號權限，並提供整個族譜資料庫的單鍵 JSON 備份與離線還原。
         </p>
+      </div>
+    </div>
+
+    <!-- 管理員專用：會員與權限管理卡片 -->
+    <div v-if="currentUser?.role === 'admin'" class="bg-white p-6 rounded-2xl border-2 border-amber-800/30 shadow-sm space-y-4">
+      <div class="flex items-center justify-between border-b pb-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-800"></span>
+          <h3 class="font-bold text-sm text-gray-900 font-serif">宗親會員帳號與權限管理 (管理員專屬)</h3>
+        </div>
+        <button
+          @click="$emit('open-auth', 'register')"
+          class="text-xs bg-amber-900 hover:bg-amber-950 text-white px-3 py-1 rounded-lg font-serif"
+        >
+          + 註冊新帳號
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-gray-700">
+          <thead class="bg-amber-50 text-amber-900 font-serif border-b">
+            <tr>
+              <th class="px-4 py-2.5">帳號名稱</th>
+              <th class="px-4 py-2.5">顯示稱呼</th>
+              <th class="px-4 py-2.5">電子信箱</th>
+              <th class="px-4 py-2.5">權限身分</th>
+              <th class="px-4 py-2.5">狀態</th>
+              <th class="px-4 py-2.5 text-right">權限操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr v-for="u in userList" :key="u.id" class="hover:bg-gray-50">
+              <td class="px-4 py-2.5 font-bold text-gray-900 font-mono">{{ u.username }}</td>
+              <td class="px-4 py-2.5 font-serif">{{ u.display_name }}</td>
+              <td class="px-4 py-2.5 text-gray-500 font-mono">{{ u.email || '-' }}</td>
+              <td class="px-4 py-2.5">
+                <span
+                  :class="[
+                    'px-2 py-0.5 rounded text-[10px] font-bold font-serif',
+                    u.role === 'admin' ? 'bg-purple-100 text-purple-800 border border-purple-200' : 'bg-blue-100 text-blue-800'
+                  ]"
+                >
+                  {{ u.role === 'admin' ? '系統管理員' : '一般會員' }}
+                </span>
+              </td>
+              <td class="px-4 py-2.5">
+                <span
+                  :class="[
+                    'px-2 py-0.5 rounded text-[10px] font-bold',
+                    u.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                  ]"
+                >
+                  {{ u.status === 'active' ? '正常啟用' : '已停權' }}
+                </span>
+              </td>
+              <td class="px-4 py-2.5 text-right space-x-1.5 whitespace-nowrap">
+                <button
+                  @click="toggleUserRole(u)"
+                  class="text-[11px] text-amber-900 hover:bg-amber-100 px-2 py-0.5 rounded border border-amber-200"
+                >
+                  切換為{{ u.role === 'admin' ? '會員' : '管理員' }}
+                </button>
+                <button
+                  @click="toggleUserStatus(u)"
+                  class="text-[11px] text-gray-700 hover:bg-gray-100 px-2 py-0.5 rounded border"
+                >
+                  {{ u.status === 'active' ? '停用' : '啟用' }}
+                </button>
+                <button
+                  v-if="u.id !== currentUser.id"
+                  @click="handleDeleteUser(u)"
+                  class="text-[11px] text-red-600 hover:bg-red-50 px-2 py-0.5 rounded border border-red-200"
+                >
+                  刪除
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -147,10 +226,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { api } from '../services/api.js';
 
-const emit = defineEmits(['updated-branch']);
+const props = defineProps({
+  currentUser: { type: Object, default: null }
+});
+
+const emit = defineEmits(['updated-branch', 'open-auth']);
 
 const form = reactive({
   family_name: '',
@@ -160,6 +243,7 @@ const form = reactive({
   description: ''
 });
 
+const userList = ref([]);
 const exportUrl = computed(() => api.exportBackupUrl());
 
 async function loadBranch() {
@@ -170,6 +254,47 @@ async function loadBranch() {
     }
   } catch (err) {
     console.error('載入宗族資料失敗:', err);
+  }
+}
+
+async function loadUsers() {
+  if (props.currentUser?.role !== 'admin') return;
+  try {
+    const res = await api.getAdminUsers();
+    userList.value = res.data || [];
+  } catch (err) {
+    console.error('載入使用者清單失敗:', err);
+  }
+}
+
+async function toggleUserRole(u) {
+  const newRole = u.role === 'admin' ? 'user' : 'admin';
+  try {
+    await api.updateUserRole(u.id, newRole);
+    loadUsers();
+  } catch (err) {
+    alert('變更失敗：' + err.message);
+  }
+}
+
+async function toggleUserStatus(u) {
+  const newStatus = u.status === 'active' ? 'disabled' : 'active';
+  try {
+    await api.updateUserStatus(u.id, newStatus);
+    loadUsers();
+  } catch (err) {
+    alert('變更失敗：' + err.message);
+  }
+}
+
+async function handleDeleteUser(u) {
+  if (confirm(`確定要刪除帳號「${u.username} (${u.display_name})」嗎？`)) {
+    try {
+      await api.deleteUser(u.id);
+      loadUsers();
+    } catch (err) {
+      alert('刪除失敗：' + err.message);
+    }
   }
 }
 
@@ -215,7 +340,12 @@ async function handleResetDemo() {
   }
 }
 
+watch(() => props.currentUser, () => {
+  loadUsers();
+});
+
 onMounted(() => {
   loadBranch();
+  loadUsers();
 });
 </script>

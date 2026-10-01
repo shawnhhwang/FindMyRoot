@@ -13,6 +13,8 @@
 - [x] **階段五：世系圖與族譜視覺化 (Genealogy Tree Visualization)**（已完成）
 - [x] **階段六：祖先牌位工作室與列印排版 (Tablet Studio & Printing)**（已完成）
 - [x] **階段七：系統備份還原與整合驗證 (Backup, Verification & Release)**（已完成）
+- [x] **階段八：使用者註冊、認證與管理員權限體系 (User Auth & Admin Control)**（已完成）
+- [x] **階段九：LLM 智慧禮制問答助手與 FAQ 知識庫 (AI Assistant & Knowledge Base)**（已完成）
 
 ---
 
@@ -129,3 +131,38 @@
   - [x] 驗證親屬關係遞迴組裝。
   - [x] 驗證牌位字數檢核規則在各式名諱長度下的正確性。
 - [x] **7.3 撰寫系統操作指南 (README.md)** 與 **使用情境案例 (USECASE.md)**。
+
+---
+
+## 階段八：使用者註冊、認證與管理員權限體系 (User Auth & Admin Control)
+
+- [x] **8.1 資料庫設計與種子帳號**
+  - [x] 建立 `users` 資料表（支援 bcrypt 密碼雜湊與 admin/user 角色）。
+  - [x] 預設建立系統管理員 (`admin`/`admin123`) 與示範宗親會員 (`clan_member`/`user123`)。
+- [x] **8.2 後端認證與管理員控制 API**
+  - [x] `POST /api/v1/auth/register`：會員註冊。
+  - [x] `POST /api/v1/auth/login`：JWT 登入簽發。
+  - [x] `GET /api/v1/auth/me`：取得當前登入者資訊。
+  - [x] `GET /api/v1/admin/users`：管理員列出所有使用者。
+  - [x] `PUT /api/v1/admin/users/:id/role`：調整使用者身分組。
+  - [x] `PUT /api/v1/admin/users/:id/status`：啟用/停用使用者帳號。
+  - [x] `DELETE /api/v1/admin/users/:id`：刪除使用者帳號。
+- [x] **8.3 前端會員認證與管理員控制面板**
+  - [x] 實作 `AuthModal.vue`（支援登入與註冊切換、示範帳號一鍵填入）。
+  - [x] 頂部導覽列會員身分徽章與登出功能。
+  - [x] 設定頁面管理員專屬「宗親會員帳號與權限管理」控制台。
+
+---
+
+## 階段九：LLM 智慧禮制問答助手與 FAQ 知識庫 (AI Assistant & Knowledge Base)
+
+- [x] **9.1 禮制民俗知識庫與動態資料庫感知**
+  - [x] 建置權威 FAQ 知識庫（「兩生合一老」字數計算、男女神主標準稱謂、堂號淵源、十二時辰對照、字輩歌作用）。
+  - [x] 實作資料庫動態感知引擎（查詢當前開基祖、登錄代數與人數、特定先人生平資訊）。
+- [x] **9.2 後端智能問答 API 與彈性外部 LLM 介接**
+  - [x] 實作 `POST /api/v1/llm/chat` 聊天問答端點（優先使用內建離線知識庫，亦支援外部 OpenAI 相容 API）。
+  - [x] 實作 `GET /api/v1/llm/faq` 與 `PUT /api/v1/llm/config`。
+- [x] **9.3 前端 AI 智慧助手視圖 (`AIAssistantView.vue`)**
+  - [x] 提供左側 FAQ 分類快捷選單與一鍵提問。
+  - [x] 實作互動式聊天氣泡流、Markdown 重點樣式渲染與後續推薦問題按鈕。
+  - [x] 支援管理員彈窗自訂外部 LLM 連線配置。

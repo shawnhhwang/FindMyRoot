@@ -83,6 +83,34 @@ export function initializeDatabase() {
     );
   `);
 
+  // 使用者帳號與權限角色表
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      username TEXT UNIQUE NOT NULL,
+      email TEXT,
+      password_hash TEXT NOT NULL,
+      display_name TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('admin', 'user')),
+      status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'disabled')),
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // AI 助手配置表 (支援自訂 LLM 或內建知識庫)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS ai_configs (
+      id TEXT PRIMARY KEY,
+      provider TEXT DEFAULT 'builtin',
+      api_key TEXT,
+      base_url TEXT,
+      model_name TEXT,
+      custom_prompt TEXT,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
   // 建立索引以強化查詢效率
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_people_names ON people(last_name, first_name);
@@ -90,6 +118,7 @@ export function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_rel_person ON relationships(person_id);
     CREATE INDEX IF NOT EXISTS idx_rel_related ON relationships(related_person_id);
     CREATE INDEX IF NOT EXISTS idx_tablet_person ON tablet_records(person_id);
+    CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
   `);
 
   console.log('資料表建立完成。檢查是否需要灌入範例種子資料...');
@@ -98,7 +127,48 @@ export function initializeDatabase() {
   if (branchCount === 0) {
     seedInitialData();
   } else {
-    console.log('資料庫中已有資料，略過種子灌入。');
+    console.log('資料庫中已有宗族資料。');
+  }
+
+  // 檢查預設管理員帳號
+  seedDefaultUsers();
+}
+
+/**
+ * 建立預設管理員與示範會員帳號
+ */
+function seedDefaultUsers() {
+  const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get().count;
+  if (userCount === 0) {
+    console.log('建立預設系統管理員 (admin/admin123) 與一般會員 (clan_member/user123)...');
+    import('../utils/auth.js').then(({ hashPassword }) => {
+      const insertUser = db.prepare(`
+        INSERT INTO users (id, username, email, password_hash, display_name, role, status)
+        VALUES (?, ?, ?, ?, ?, ?, 'active')
+      `);
+
+      // 管理員: admin / admin123
+      insertUser.run(
+        'user-admin-01',
+        'admin',
+        'admin@findroot.internal',
+        hashPassword('admin123'),
+        '系統管理員',
+        'admin'
+      );
+
+      // 一般族人會員: clan_member / user123
+      insertUser.run(
+        'user-member-01',
+        'clan_member',
+        'member@findroot.internal',
+        hashPassword('user123'),
+        '穎川堂族人',
+        'user'
+      );
+
+      console.log('預設管理員與會員帳號建立完畢。');
+    });
   }
 }
 

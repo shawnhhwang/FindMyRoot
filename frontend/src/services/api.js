@@ -1,9 +1,25 @@
 const API_BASE = '/api/v1';
 
+let authToken = localStorage.getItem('findroot_token') || '';
+
+export function setAuthToken(token) {
+  authToken = token || '';
+  if (token) {
+    localStorage.setItem('findroot_token', token);
+  } else {
+    localStorage.removeItem('findroot_token');
+  }
+}
+
+export function getAuthToken() {
+  return authToken;
+}
+
 async function request(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
   const headers = {
     'Content-Type': 'application/json',
+    ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {}),
     ...(options.headers || {})
   };
 
@@ -20,6 +36,23 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+  // 會員認證與帳號
+  login: (data) => request('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
+  register: (data) => request('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
+  getMe: () => request('/auth/me'),
+
+  // 管理員專用
+  getAdminUsers: () => request('/admin/users'),
+  updateUserRole: (id, role) => request(`/admin/users/${id}/role`, { method: 'PUT', body: JSON.stringify({ role }) }),
+  updateUserStatus: (id, status) => request(`/admin/users/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) }),
+  deleteUser: (id) => request(`/admin/users/${id}`, { method: 'DELETE' }),
+
+  // LLM 助手與 FAQ
+  chatWithLLM: (data) => request('/llm/chat', { method: 'POST', body: JSON.stringify(data) }),
+  getFaqList: () => request('/llm/faq'),
+  getAIConfig: () => request('/llm/config'),
+  updateAIConfig: (data) => request('/llm/config', { method: 'PUT', body: JSON.stringify(data) }),
+
   // 成員管理
   getMembers: (params = {}) => {
     const query = new URLSearchParams(params).toString();

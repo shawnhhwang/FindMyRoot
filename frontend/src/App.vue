@@ -4,8 +4,11 @@
     <Navbar
       :activeTab="activeTab"
       :hallName="branchInfo.hall_name"
+      :currentUser="currentUser"
       @update:activeTab="handleNavigate"
       @open-add-member="openAddModal"
+      @open-auth="openAuthModal"
+      @logout="handleLogout"
     />
 
     <!-- 主要內容區域 -->
@@ -44,10 +47,18 @@
         :defaultMember="targetTabletMember"
       />
 
-      <!-- 宗族設定與備份還原 -->
+      <!-- AI 智慧助手與 FAQ 知識庫 -->
+      <AIAssistantView
+        v-else-if="activeTab === 'ai'"
+        :currentUser="currentUser"
+      />
+
+      <!-- 宗族設定與備份還原 (含管理員權限控制) -->
       <SettingsView
         v-else-if="activeTab === 'settings'"
+        :currentUser="currentUser"
         @updated-branch="loadBranchInfo"
+        @open-auth="openAuthModal"
       />
     </main>
 
@@ -60,11 +71,18 @@
       @save="handleSaveMember"
     />
 
+    <!-- 使用者登入/註冊彈窗 -->
+    <AuthModal
+      :isOpen="isAuthModalOpen"
+      @close="isAuthModalOpen = false"
+      @auth-success="handleAuthSuccess"
+    />
+
     <!-- 頁尾 -->
     <footer class="bg-stone-900 text-stone-400 py-6 border-t border-stone-800 text-xs font-serif print:hidden mt-auto">
       <div class="max-w-7xl mx-auto px-4 text-center space-y-1">
         <p>尋根系統 (FindRoot) ‧ 祖先牌位格式整理與族譜世系數位化管理工具</p>
-        <p class="text-stone-500 font-sans text-[11px]">支援農曆國曆干支八字時辰雙向換算 ‧ 遵循「兩生合一老」神主字數規範</p>
+        <p class="text-stone-500 font-sans text-[11px]">支援農曆國曆干支八字時辰雙向換算 ‧ 遵循「兩生合一老」神主字數規範 ‧ 內建 AI 禮制顧問問答</p>
       </div>
     </footer>
   </div>
@@ -72,26 +90,53 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { api } from './services/api.js';
+import { api, setAuthToken } from './services/api.js';
 
 import Navbar from './components/Navbar.vue';
 import MemberModal from './components/MemberModal.vue';
+import AuthModal from './components/AuthModal.vue';
 
 import DashboardView from './views/DashboardView.vue';
 import MemberListView from './views/MemberListView.vue';
 import TreeView from './views/TreeView.vue';
 import TabletStudioView from './views/TabletStudioView.vue';
+import AIAssistantView from './views/AIAssistantView.vue';
 import SettingsView from './views/SettingsView.vue';
 
 const activeTab = ref('dashboard');
 const branchInfo = ref({});
 const members = ref([]);
+const currentUser = ref(null);
 
 const isModalOpen = ref(false);
+const isAuthModalOpen = ref(false);
 const editingMember = ref(null);
 const targetTabletMember = ref(null);
 
 const treeViewRef = ref(null);
+
+async function checkAuth() {
+  try {
+    const res = await api.getMe();
+    currentUser.value = res.user || null;
+  } catch (err) {
+    currentUser.value = null;
+  }
+}
+
+function handleAuthSuccess(user) {
+  currentUser.value = user;
+}
+
+function handleLogout() {
+  setAuthToken('');
+  currentUser.value = null;
+  alert('您已成功登出系統');
+}
+
+function openAuthModal() {
+  isAuthModalOpen.value = true;
+}
 
 async function loadBranchInfo() {
   try {
@@ -168,6 +213,7 @@ function handleCreateTablet(person) {
 }
 
 onMounted(() => {
+  checkAuth();
   loadBranchInfo();
   loadMembers();
 });
