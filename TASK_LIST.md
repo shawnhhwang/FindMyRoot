@@ -15,6 +15,7 @@
 - [x] **階段七：系統備份還原與整合驗證 (Backup, Verification & Release)**（已完成）
 - [x] **階段八：使用者註冊、認證與管理員權限體系 (User Auth & Admin Control)**（已完成）
 - [x] **階段九：LLM 智慧禮制問答助手與 FAQ 知識庫 (AI Assistant & Knowledge Base)**（已完成）
+- [x] **階段十：Awwwards / Webby / FWA 級前端視覺美學與互動體驗革新 (Award-Grade UX/UI)**（已完成）
 
 ---
 
@@ -166,3 +167,25 @@
   - [x] 提供左側 FAQ 分類快捷選單與一鍵提問。
   - [x] 實作互動式聊天氣泡流、Markdown 重點樣式渲染與後續推薦問題按鈕。
   - [x] 支援管理員彈窗自訂外部 LLM 連線配置。
+
+---
+
+## 階段十：Awwwards / Webby / FWA 級前端視覺美學與互動體驗革新 (Award-Grade UX/UI)
+
+- [x] **10.1 宮廷東方非遺設計系統建置**
+  - [x] 引入傳統書法名家字體（Ma Shan Zheng）與精緻思源宋體，訂製高解析篆刻硃砂「根」字 Favicon。
+  - [x] 擴充 Tailwind 色彩語義體系（硃砂紅、宮廷泥金、老紅木、沉香黑檀、古籍宣紙米白）。
+  - [x] 實作全域宣紙底紋（Xuan Paper Texture）、金箔流光（Gold Shimmer）、回紋飾角（Ornate Card）與金字浮雕（`gold-text-emboss`）。
+- [x] **10.2 典藏級 3D 浮雕祖先牌位與五德天體羅盤**
+  - [x] 重構 `TabletPreview.vue`：加入頂部牌頭祥雲螭龍雕飾、雷雕堂號匾額、多層須彌蓮花座（仰覆蓮花台）與 3D 陰影厚度。
+  - [x] 打造 `FiveFateCompass.vue`：環形 SVG 儀表天體羅盤，即時運算「生老病死苦」相位、弧度指標與魯班尺文公尺吉數規矩指南。
+  - [x] 整合 `TabletStudioView.vue`：無縫聯動 3D 牌位刻工、羅盤運轉與一鍵依禮補字。
+- [x] **10.3 古典雅樂聲學合成引擎 (Web Audio API)**
+  - [x] 實作 `src/utils/audio.js`：零外部資產依賴，純數學合成宮商角徵羽五音磬鐘與古琴餘韻（523Hz～880Hz）。
+  - [x] 於頂部導覽列提供雅樂開關（`Navbar.vue` 磬鈴按鈕）。
+  - [x] 於族人探詢、牌位刻立、AI 請益答覆等觸發節點提供清逸悠長的音效反饋。
+- [x] **10.4 絲綢卷軸世系族譜與文淵閣學者工作室**
+  - [x] 重構 `FamilyTree.vue` 與 `TreeNode.vue`：古典絲綢底紋、水墨世系印璽、竹簡玉牒卡片、金色高亮巡歷與族人搜尋 HUD 控制列。
+  - [x] 升級 `AIAssistantView.vue` 與 `MemberListView.vue`：文淵閣書齋陳設、硃砂印章標章、昭穆玉牒檔案與雅樂聯動。
+- [x] **10.5 跨裝置自適應、60FPS 流暢動畫與 Vite 生產建置驗證**
+  - [x] 修正 CSS 規格相容性，達成零報錯、超輕量 Gzip 產出（`dist/` 編譯通過）。

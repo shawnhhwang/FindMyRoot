@@ -40,6 +40,21 @@
 
         <!-- User Profile & Action Buttons -->
         <div class="flex items-center gap-2.5">
+          <!-- 雅樂音效切換鈕 -->
+          <button
+            @click="handleToggleAudio"
+            :title="soundOn ? '點擊靜音' : '點擊開啟典藏磬鐘音效'"
+            :class="[
+              'px-2.5 py-1.5 rounded-xl text-xs font-serif flex items-center gap-1.5 transition-all border',
+              soundOn
+                ? 'bg-amber-500/20 text-amber-200 border-amber-400/50 shadow-[0_0_10px_rgba(212,175,55,0.2)]'
+                : 'bg-white/5 text-amber-200/50 border-amber-800/40 hover:text-amber-200'
+            ]"
+          >
+            <span class="text-sm">{{ soundOn ? '🔔' : '🔕' }}</span>
+            <span class="hidden md:inline">{{ soundOn ? '雅樂開' : '靜音' }}</span>
+          </button>
+
           <!-- 登錄新族人按鈕 -->
           <button
             @click="$emit('open-add-member')"
@@ -104,6 +119,9 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
+import { toggleSound, getSoundStatus } from '../utils/audio.js';
+
 defineProps({
   activeTab: { type: String, default: 'dashboard' },
   hallName: { type: String, default: '' },
@@ -111,6 +129,12 @@ defineProps({
 });
 
 defineEmits(['update:activeTab', 'open-add-member', 'open-auth', 'logout']);
+
+const soundOn = ref(getSoundStatus());
+
+function handleToggleAudio() {
+  soundOn.value = toggleSound();
+}
 
 const navItems = [
   { id: 'dashboard', label: '宗族總覽' },

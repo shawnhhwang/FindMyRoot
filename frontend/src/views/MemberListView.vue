@@ -1,15 +1,18 @@
 <template>
   <div class="space-y-5">
     <!-- Header & Filtering -->
-    <div class="bg-white p-5 rounded-2xl border border-amber-900/10 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="bg-white/95 backdrop-blur-xs p-6 rounded-2xl border border-amber-900/15 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 ornate-card">
       <div>
-        <h2 class="text-xl font-bold font-serif text-amber-950 flex items-center gap-2">
-          <span>宗族世系名冊</span>
-          <span class="text-xs font-sans font-normal bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
-            共 {{ filteredMembers.length }} 位
-          </span>
-        </h2>
-        <p class="text-xs text-gray-500 mt-1">完整登錄族人名諱、字輩、生卒年月日時辰與安葬穴位。</p>
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-800 to-amber-950 text-amber-200 flex items-center justify-center font-bold text-xs font-serif shadow-inner border border-amber-600/40">牒</span>
+          <h2 class="text-xl font-bold font-serif text-stone-900 flex items-center gap-2">
+            <span>宗族玉牒世系名冊</span>
+            <span class="text-xs font-serif font-normal bg-amber-100 text-amber-900 border border-amber-300/40 px-2.5 py-0.5 rounded-full">
+              共錄 {{ filteredMembers.length }} 位先祖裔孫
+            </span>
+          </h2>
+        </div>
+        <p class="text-xs text-stone-500 font-serif mt-1.5 pl-10.5">詳記太祖先民世系源流、昭穆排行、生卒年月干支吉辰與長眠福地。</p>
       </div>
 
       <!-- 搜尋與篩選條件 -->
@@ -17,15 +20,15 @@
         <input
           v-model="searchKeyword"
           type="text"
-          placeholder="搜尋姓名或字輩..."
-          class="px-3 py-1.5 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 w-36 sm:w-48 bg-gray-50/50"
+          placeholder="搜尋先祖姓名、字輩、號..."
+          class="px-3.5 py-2 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 w-40 sm:w-52 bg-stone-50/60 font-serif"
         />
 
         <select
           v-model="selectedGeneration"
-          class="px-3 py-1.5 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 bg-white"
+          class="px-3.5 py-2 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 bg-white font-serif"
         >
-          <option value="">全部世代</option>
+          <option value="">全部昭穆世代</option>
           <option v-for="g in availableGenerations" :key="g" :value="g">
             第 {{ g }} 世
           </option>
@@ -33,38 +36,38 @@
 
         <select
           v-model="selectedGender"
-          class="px-3 py-1.5 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 bg-white"
+          class="px-3.5 py-2 border border-stone-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 bg-white font-serif"
         >
-          <option value="">全部性別</option>
-          <option value="M">男 (考/嗣)</option>
-          <option value="F">女 (妣/孺人)</option>
+          <option value="">全部男女</option>
+          <option value="M">男考 (顯考/嗣男)</option>
+          <option value="F">女妣 (顯妣/孺人)</option>
         </select>
 
         <button
           @click="$emit('open-add-member')"
-          class="bg-amber-900 hover:bg-amber-950 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold font-serif flex items-center gap-1 shadow-sm transition-all"
+          class="bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-700 hover:to-amber-900 text-white px-4 py-2 rounded-xl text-xs font-bold font-serif flex items-center gap-1.5 shadow-sm transition-all border border-amber-700/50"
         >
-          <span>+ 登錄新族人</span>
+          <span>+ 登錄新宗親</span>
         </button>
       </div>
     </div>
 
     <!-- 成員名冊表格 -->
-    <div class="bg-white rounded-2xl border border-amber-900/10 shadow-sm overflow-hidden">
+    <div class="bg-white/95 backdrop-blur-xs rounded-2xl border border-amber-900/15 shadow-sm overflow-hidden ornate-card">
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-gray-700">
-          <thead class="bg-amber-950/5 font-serif text-amber-950 uppercase border-b border-amber-900/10">
+        <table class="w-full text-left text-xs text-stone-700 font-serif">
+          <thead class="bg-gradient-to-r from-stone-900 via-amber-950 to-stone-900 text-amber-100 uppercase border-b border-amber-800/40">
             <tr>
-              <th scope="col" class="px-5 py-3.5">世代 / 字輩</th>
-              <th scope="col" class="px-5 py-3.5">姓名 / 別號</th>
-              <th scope="col" class="px-5 py-3.5">性別 / 排行</th>
-              <th scope="col" class="px-5 py-3.5">誕辰 (農曆 / 國曆)</th>
-              <th scope="col" class="px-5 py-3.5">忌辰 (農曆 / 國曆)</th>
-              <th scope="col" class="px-5 py-3.5">安葬位址</th>
-              <th scope="col" class="px-5 py-3.5 text-right">操作管理</th>
+              <th scope="col" class="px-5 py-4 tracking-wider">世代 / 昭穆</th>
+              <th scope="col" class="px-5 py-4 tracking-wider">尊諱名號</th>
+              <th scope="col" class="px-5 py-4 tracking-wider">男女 / 行位</th>
+              <th scope="col" class="px-5 py-4 tracking-wider">誕辰 (農曆干支 / 國曆)</th>
+              <th scope="col" class="px-5 py-4 tracking-wider">仙逝 (農曆干支 / 國曆)</th>
+              <th scope="col" class="px-5 py-4 tracking-wider">安葬福地</th>
+              <th scope="col" class="px-5 py-4 text-right tracking-wider">儀禮操作</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100">
+          <tbody class="divide-y divide-amber-900/5">
             <tr
               v-for="p in filteredMembers"
               :key="p.id"
@@ -137,30 +140,30 @@
               </td>
 
               <!-- 操作 -->
-              <td class="px-5 py-3.5 text-right whitespace-nowrap space-x-1.5">
+              <td class="px-5 py-3.5 text-right whitespace-nowrap space-x-1.5 font-serif">
                 <button
-                  @click="$emit('create-tablet', p)"
-                  class="text-amber-900 hover:bg-amber-100 px-2 py-1 rounded font-serif text-[11px] font-medium transition-colors"
+                  @click="handleCreateTablet(p)"
+                  class="bg-amber-100/80 hover:bg-amber-200 text-amber-900 border border-amber-300/60 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shadow-2xs"
                 >
-                  牌位
+                  刻立神位
                 </button>
                 <button
                   @click="$emit('edit-member', p)"
-                  class="text-blue-700 hover:bg-blue-50 px-2 py-1 rounded text-[11px] font-medium transition-colors"
+                  class="bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-300 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all"
                 >
                   修訂
                 </button>
                 <button
                   @click="handleDelete(p)"
-                  class="text-red-600 hover:bg-red-50 px-2 py-1 rounded text-[11px] font-medium transition-colors"
+                  class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all"
                 >
-                  刪除
+                  除名
                 </button>
               </td>
             </tr>
 
             <tr v-if="!filteredMembers.length">
-              <td colspan="7" class="text-center py-12 text-gray-400 font-serif">
+              <td colspan="7" class="text-center py-12 text-stone-400 font-serif">
                 無符合篩選條件之成員資料
               </td>
             </tr>
@@ -173,12 +176,18 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { playAncestorSelectSound } from '../utils/audio.js';
 
 const props = defineProps({
   members: { type: Array, default: () => [] }
 });
 
 const emit = defineEmits(['open-add-member', 'edit-member', 'delete-member', 'create-tablet']);
+
+function handleCreateTablet(p) {
+  playAncestorSelectSound();
+  emit('create-tablet', p);
+}
 
 const searchKeyword = ref('');
 const selectedGeneration = ref('');
